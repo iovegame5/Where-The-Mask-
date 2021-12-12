@@ -4,11 +4,15 @@ from PIL import Image, ImageOps
 import numpy as np
 
 
-webcam = cv2.VideoCapture(0) 
+
+
+webcam = cv2.VideoCapture(0)
+
+
 face_cascade = 'model/haarcascade_frontalface_default.xml'
 model = load_model('model/mask.h5')
 np.set_printoptions(suppress=True)  # ทำให้ค่า predict เป็นทศนิยม
-while True:
+def mask():
     success, bgr_image = webcam.read()
     
     # เปลี่ยนรูปเป็นขาวดำเพื่อให้ cascade อ่านค่าได้
@@ -35,7 +39,7 @@ while True:
 
         data[0] = normalized_image_array
         prediction = model.predict(data)
-        print(prediction)
+        # print(prediction)
         # prediction[0][0] = masked, [0][1] = nonmasked
         masked = prediction[0][0] > prediction[0][1]
         unmasked = prediction[0][0] < prediction[0][1]
@@ -51,11 +55,7 @@ while True:
             cv2.rectangle(bgr_image, (x, y), (x+w, y+h), (0, 0, 255), 5)
             cv2.putText(bgr_image, 'wear a mask!!', (0, 50),
                         cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 2, cv2.LINE_4)
-    cv2.namedWindow("Where The Mask?", cv2.WND_PROP_FULLSCREEN)          
-    cv2.setWindowProperty("Where The Mask?", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    cv2.imshow('Where The Mask?', bgr_image)
-    cv2.waitKey(1)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-webcam.release()
-cv2.destroyAllWindows()
+            
+    return bgr_image
+cv2.imshow('mask', mask())
+
